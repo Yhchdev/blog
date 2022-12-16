@@ -2,7 +2,7 @@ package main
 
 import "container/list"
 
-type Cacheable interface {
+type CacheAble interface {
 	Key() string
 	Size() int
 }
@@ -14,7 +14,7 @@ type LRUCache struct {
 }
 
 type LRUCacheItem struct {
-	cacheable   Cacheable
+	CacheAble   CacheAble
 	listElement *list.Element
 }
 
@@ -26,37 +26,37 @@ func NewLRUCache(capacity int) *LRUCache {
 	}
 }
 
-func (c *LRUCache) Get(key string) Cacheable {
+func (c *LRUCache) Get(key string) CacheAble {
 	item, ok := c.items[key]
 	if !ok {
 		return nil
 	}
 	c.list.MoveToFront(item.listElement)
-	return item.cacheable
+	return item.CacheAble
 }
 
-func (c *LRUCache) Set(cacheable Cacheable) {
+func (c *LRUCache) Set(CacheAble CacheAble) {
 	// 清理空间
 	for {
-		if cacheable.Size() < c.capacity {
+		if CacheAble.Size() < c.capacity {
 			break
 		}
 		c.prune()
 	}
 
-	item, ok := c.items[cacheable.Key()]
+	item, ok := c.items[CacheAble.Key()]
 	if ok {
-		item.cacheable = cacheable
-		c.capacity -= cacheable.Size() - item.cacheable.Size()
+		item.CacheAble = CacheAble
+		c.capacity -= CacheAble.Size() - item.CacheAble.Size()
 		c.list.MoveToFront(item.listElement)
 	} else {
 		item := &LRUCacheItem{
-			cacheable: cacheable,
+			CacheAble: CacheAble,
 		}
 		item.listElement = c.list.PushBack(item)
-		c.items[cacheable.Key()] = item
+		c.items[CacheAble.Key()] = item
 
-		c.capacity -= cacheable.Size()
+		c.capacity -= CacheAble.Size()
 	}
 }
 
@@ -68,8 +68,8 @@ func (c *LRUCache) prune() {
 			continue
 		}
 		item := c.list.Remove(tail).(*LRUCacheItem)
-		delete(c.items, item.cacheable.Key())
-		c.capacity += item.cacheable.Size()
+		delete(c.items, item.CacheAble.Key())
+		c.capacity += item.CacheAble.Size()
 	}
 }
 
